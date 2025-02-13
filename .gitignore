@@ -1,0 +1,5 @@
+data_info/smpl/*
+pretrained/*
+hybrik.onnx
+hybrik.engine
+__pycache__/
