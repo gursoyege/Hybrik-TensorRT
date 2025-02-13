@@ -1,6 +1,6 @@
 # Hybrik-TensorRT
 ## Description
-Base code of tensorrt inference for Hybrik.
+Base code of tensorrt inference for Hybrik. Real-time 3D Human pose estimation from single image with Hybrik, converting to onnx and tensorrt.
 ![output](vis.png)
 
 ## Usage
@@ -11,4 +11,8 @@ Base code of tensorrt inference for Hybrik.
 python convert_hybrik.py
 python test_hybrik.py
 ```
+the code will generate onnx file, tensorrt engine file and output obj.
+
+## Reference
+Hybrik: [https://github.com/jeffffffli/HybrIK](https://github.com/jeffffffli/HybrIK)
 
