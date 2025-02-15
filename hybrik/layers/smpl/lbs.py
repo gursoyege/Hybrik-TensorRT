@@ -336,7 +336,7 @@ def hybrik(betas, global_orient, pose_skeleton, phis,
         rot_mats: torch.tensor BxJx3x3
             The rotation matrics of each joints
     '''
-    batch_size = max(betas.shape[0], pose_skeleton.shape[0])
+    batch_size = betas.shape[0]
     device = betas.device
 
     # 1. Add shape contribution
@@ -623,6 +623,7 @@ def batch_inverse_kinematics_transform(
         leaf_rot_mats = leaf_thetas.view([batch_size, 5, 3, 3])
 
     for i in range(1, parents.shape[0]):
+     
         if children[i] == -1:
             # leaf nodes
             if leaf_thetas is not None:
@@ -686,10 +687,10 @@ def batch_inverse_kinematics_transform(
                 orig_vec = rel_pose_skeleton[:, children[i]]
                 template_vec = rel_rest_pose[:, children[i]]
                 norm_t = torch.norm(template_vec, dim=1, keepdim=True)
-                orig_vec = orig_vec * norm_t / torch.norm(orig_vec, dim=1, keepdim=True)
+                orig_vec = orig_vec * norm_t / (torch.norm(orig_vec, dim=1, keepdim=True) + 1e-8)
 
                 diff = torch.norm(child_final_loc - orig_vec, dim=1, keepdim=True)
-                big_diff_idx = torch.where(diff > 15 / 1000)[0]
+                big_diff_idx = torch.where(diff > 15 / 1000.)[0]
 
                 child_final_loc[big_diff_idx] = orig_vec[big_diff_idx]
 
@@ -729,7 +730,7 @@ def batch_inverse_kinematics_transform(
             # Convert spin to rot_mat
             # (B, 3, 1)
             # twist的转轴直接用Tpose里的
-            spin_axis = child_rest_loc / child_rest_norm
+            spin_axis = child_rest_loc / (child_rest_norm + 1e-8)
             # (B, 1, 1)
             rx, ry, rz = torch.split(spin_axis, 1, dim=1)
             zeros = torch.zeros((batch_size, 1, 1), dtype=dtype, device=device)

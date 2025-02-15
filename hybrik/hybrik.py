@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 from easydict import EasyDict as edict
 from torch.nn import functional as F
-
+#import roma
 from .layers.Resnet import ResNet
-# from .layers.smpl.SMPL import SMPL_layer
+from .layers.smpl.SMPL import SMPL_layer
 
 
 def flip(x):
@@ -57,12 +57,12 @@ class Simple3DPoseBaseSMPLCam(nn.Module):
         self.final_layer = nn.Conv2d(
             self.deconv_dim[2], self.num_joints * self.depth_dim, kernel_size=1, stride=1, padding=0)
 
-        # h36m_jregressor = np.load('data_info/smpl/J_regressor_h36m.npy')
-        # self.smpl = SMPL_layer(
-        #     'data_info/smpl/basicModel_neutral_lbs_10_207_0_v1.0.0.pkl',
-        #     h36m_jregressor=h36m_jregressor,
-        #     dtype=self.smpl_dtype
-        # )
+        h36m_jregressor = np.load('data_info/smpl/J_regressor_h36m.npy')
+        self.smpl = SMPL_layer(
+            'data_info/smpl/basicModel_neutral_lbs_10_207_0_v1.0.0.pkl',
+            h36m_jregressor=h36m_jregressor,
+            dtype=self.smpl_dtype
+        )
 
         self.joint_pairs_24 = ((1, 2), (4, 5), (7, 8),
                                (10, 11), (13, 14), (16, 17), (18, 19), (20, 21), (22, 23))
@@ -270,14 +270,15 @@ class Simple3DPoseBaseSMPLCam(nn.Module):
         pose_skeleton=pred_xyz_jts_29.type(self.smpl_dtype) * self.depth_factor # unit: meter
         betas=pred_shape.type(self.smpl_dtype)
         phis=pred_phi.type(self.smpl_dtype)
-        return pose_skeleton, betas, phis, camera_root
+        #return pose_skeleton, betas, phis, camera_root
         output = self.smpl.hybrik(
-            pose_skeleton=pred_xyz_jts_29.type(self.smpl_dtype) * self.depth_factor,  # unit: meter
-            betas=pred_shape.type(self.smpl_dtype),
-            phis=pred_phi.type(self.smpl_dtype),
+            pose_skeleton=pose_skeleton,  # unit: meter
+            betas=betas,
+            phis=phis,
             global_orient=None,
             return_verts=True
         )
+        return betas, output.rot_mats.float()#.reshape(batch_size, 24, 3, 3)
         pred_vertices = output.vertices.float()
         #  -0.5 ~ 0.5
         pred_xyz_jts_24_struct = output.joints.float() / self.depth_factor

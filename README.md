@@ -13,6 +13,10 @@ python test_hybrik.py
 ```
 the code will generate onnx file, tensorrt engine file and output obj.
 
+## Results
+Test GPU: 4090
+FPS: 200+
+
 ## Reference
 Hybrik: [https://github.com/jeffffffli/HybrIK](https://github.com/jeffffffli/HybrIK)
 

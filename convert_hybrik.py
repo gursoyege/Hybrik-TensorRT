@@ -1,17 +1,24 @@
 import tensorrt as trt
 import torch
 from hybrik.hybrik import Simple3DPoseBaseSMPLCam
+from onnxsim import simplify
 model = Simple3DPoseBaseSMPLCam()
 img = torch.randn(1, 3, 256, 256)
-pose_skeleton, betas, phis, camera_root = model(img)
+shape, pose = model(img)
 
-torch.onnx.export(model, (img), "hybrik.onnx", input_names=["img"], output_names=["pose_skeleton", "betas", "phis", "camera_root"], dynamic_axes={"img": [0]})
+torch.onnx.export(model, (img), "hybrik.onnx", input_names=["img"], output_names=["shape", "pose"], dynamic_axes={"img": [0]})
+# torch.onnx.export(model, (img), "hybrik.onnx", input_names=["img"], output_names=["shape", "pose"])
+import onnx
+model = onnx.load("hybrik.onnx")
 
+# convert model
+model_simp, check = simplify(model)
+onnx.save(model_simp, 'hybrik.onnx')
 
 
 def build_model(onnx_file_path):
     engine_file_path = onnx_file_path.replace('.onnx', '.engine')
-    build_engine(onnx_file_path, engine_file_path, True)
+    build_engine(onnx_file_path, engine_file_path, False)
 
 
 def build_engine(onnx_file_path, engine_file_path, half=True):
@@ -39,7 +46,7 @@ def build_engine(onnx_file_path, engine_file_path, half=True):
     # config.add_optimization_profile(profile)
     #hybrik
     profile = builder.create_optimization_profile()
-    profile.set_shape('img', (1,3,256,256), (32,3,256,256), (64,3,256,256)) 
+    profile.set_shape('img', (1,3,256,256), (3,3,256,256), (32,3,256,256)) 
     config.add_optimization_profile(profile)
 
 
