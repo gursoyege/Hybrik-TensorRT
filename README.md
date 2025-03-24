@@ -38,7 +38,6 @@ python convert_hybrik.py
 Test your code with 
 
 ```[python]
-python test_hybrik.py
 python demo_video.py --video-name examples/dance.mp4 --out-dir res_dance --save-pk --save-img --engine-path hybrik.engine
 ```
 ## Results
