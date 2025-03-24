@@ -57,9 +57,9 @@ class Simple3DPoseBaseSMPLCam(nn.Module):
         self.final_layer = nn.Conv2d(
             self.deconv_dim[2], self.num_joints * self.depth_dim, kernel_size=1, stride=1, padding=0)
 
-        h36m_jregressor = np.load('data_info/smpl/J_regressor_h36m.npy')
+        h36m_jregressor = np.load('model_files/J_regressor_h36m.npy')
         self.smpl = SMPL_layer(
-            'data_info/smpl/basicModel_neutral_lbs_10_207_0_v1.0.0.pkl',
+            'model_files/basicModel_neutral_lbs_10_207_0_v1.0.0.pkl',
             h36m_jregressor=h36m_jregressor,
             dtype=self.smpl_dtype
         )
@@ -75,7 +75,7 @@ class Simple3DPoseBaseSMPLCam(nn.Module):
         self.root_idx_smpl = 0
 
         # mean shape
-        init_shape = np.load('data_info/smpl/h36m_mean_beta.npy')
+        init_shape = np.load('model_files/h36m_mean_beta.npy')
         self.register_buffer(
             'init_shape',
             torch.Tensor(init_shape).float())
@@ -98,7 +98,7 @@ class Simple3DPoseBaseSMPLCam(nn.Module):
         self.bbox_3d_shape = [2200,2200,2200]
         self.depth_factor = float(self.bbox_3d_shape[2]) * 1e-3
         self.input_size = 256.0
-        self.load_state_dict(torch.load("pretrained/hybrik_res34_w3dpw.pth"),strict=False)
+        self.load_state_dict(torch.load("pretrained_models/hybrik_res34_w3dpw.pth"),strict=False)
 
     def _make_deconv_layer(self):
         deconv_layers = []
